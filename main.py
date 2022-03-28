@@ -44,7 +44,7 @@ def showResults(scores, doc_id, weightType, relevanceType):
     print('-----------', '---------', sep='\t')
     
     result = 0
-    while result < 10:
+    while result < 15:
         if relevanceType == 'Cosine Similarity':
             _max = max(scores)
             i = scores.index(_max)
@@ -112,13 +112,14 @@ def main():
     query = args.query.lower().split(' ')
     # doc_id, documents = doc_to_list(args.doc)
     doc_id, documents = doc_to_list('EnglishNews')
-    print(doc_id[0])
+    # print(doc_id[0])
 
     # doc_id, documents = doc_to_dict(f'{doc}/*.txt')
 
     
     v = VectorSpace(documents, query, args.weightType)
     scores = v.search(args.relevanceType)
+    print(v.vectorKeywordIndex)
 
     if args.feedback:
         showFeedbackResults(v, scores, args.doc, doc_id, args.weightType, args.relevanceType)

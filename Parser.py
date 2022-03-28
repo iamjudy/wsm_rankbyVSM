@@ -39,7 +39,7 @@ class Parser:
         string = string.replace('”',"")
         string = string.replace(r"'s$","")
         string = string.replace("\s+"," ")
-        string = string.replace("\n"," ")
+        # string = string.replace("\n"," ")
         # string = re.sub(r'[^\w\s]','',string)
         string = string.lower()
         return string
