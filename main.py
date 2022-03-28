@@ -64,12 +64,9 @@ def showResults(scores, doc_id, weightType, relevanceType):
             scores[i] = 1000
             result+=1
     
-    end = time.time()
-    spend = end - start
 
     print('Data Size: ' + str(len(doc_id)))
-    print('Execution Time: ' + str(timedelta(seconds=spend)))
-    print('--------------------------------------\n')
+    
 
 def showFeedbackResults(v, scores, doc_path, doc_name, weightType, relevanceType):
     first_doc = doc_name[scores.index(max(scores))]
@@ -115,7 +112,7 @@ def main():
     query = args.query.lower().split(' ')
     # doc_id, documents = doc_to_list(args.doc)
     doc_id, documents = doc_to_list('EnglishNews')
-
+    print(doc_id[0])
 
     # doc_id, documents = doc_to_dict(f'{doc}/*.txt')
 
@@ -132,9 +129,11 @@ if __name__ == '__main__':
     # main(sys.argv[1:])
     start = time.time()
     main()
+    end = time.time()
+    spend = end - start
+    print('Execution Time: ' + str(timedelta(seconds=spend)))
+    print('--------------------------------------\n')
 
-    # doc_id, documents = doc_to_list('TestNews')
-    
     # query = 'Trump Biden Taiwan China'
     # query = query.lower().split(' ')
 
@@ -148,10 +147,7 @@ if __name__ == '__main__':
     # for i in range(len(vector)):
     #     if vector[i] > 0:
     #         vector[i] = vector[i] / len(documents[0])
-    # print(vector)
-    # print('--------------------------')
-    # print(len(documents[0]), len(vector))
-    # print(v.documentVectors)
+    
     # print('--------------------------')
 
     # for i in range(len(vector)):

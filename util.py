@@ -23,6 +23,6 @@ def cosine(vector1, vector2):
 def euclidean(vector1, vector2):
 	vector1 = array(vector1)
 	vector2 = array(vector2)
-	return float(np.sqrt(sum(pow(vector1-vector2,2))))
+	return float(norm(vector1-vector2,2))
 
 

@@ -29,21 +29,34 @@ class VectorSpace:
     #queryVector for feedback
     queryVector = []
 
-    def __init__(self, documents=[], queryList=[], weightType = ''):
+    def __init__(self, documents=[], queryList=[], weightType = '', doc_id = []):
         self.documentVectors=[]
         self.queryList = queryList
         self.weightType = weightType
         self.parser = Parser()
         if(len(documents)>0 and len(queryList)>0):
-            self.build(documents, self.queryList)
+            self.build(documents, self.queryList, doc_id)
+        # print(len(self.documentVectors), len(self.documentVectors[0]))
+        # print(self.documentVectors[0])
+        # print(self.vectorKeywordIndex)
+        # import sys
+        # sys.exit(0)
 
 
-    def build(self, documents, query):
+    def build(self, documents, query, doc_id):
         """ Create the vector space for the passed document strings """
         self.vectorKeywordIndex = self.getVectorKeywordIndex(documents+query)
+        with open('vectorKeywordIndex.txt', 'w+') as f:
+            import json
+            f.write(json.dumps(self.vectorKeywordIndex, indent=4, ensure_ascii=False))
         if self.weightType == 'tfidf':
             self.idf = self.buildIdf(documents)
         self.documentVectors = [self.tfidf(self.makeVector(document)) for document in documents]
+        for i in range(len(self.documentVectors)):
+            if doc_id[i] == 'News111959':
+                print(list(map(lambda x: self.vectorKeywordIndex[x], self.documentVectors[i])))
+                import sys
+                sys.exit(0)
 
 
     def getVectorKeywordIndex(self, documentList):
@@ -90,7 +103,7 @@ class VectorSpace:
         for i in range(len(vector)):
             if vector[i] > 0:
                 if self.weightType == 'tf':
-                    vector[i] = vector[i] / len(vector)
+                    vector[i] = vector[i] / sum(vector)
 
                 if self.weightType == 'tfidf':
                     vector[i] = vector[i] * self.idf[i]
