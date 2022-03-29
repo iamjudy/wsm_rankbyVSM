@@ -98,26 +98,23 @@ class VectorSpace:
         return vector
     
 
-    def n_containing(self, word):
-        n = 0
-        index = self.vectorKeywordIndex[word]
-        for i in range(len(self.documentVectors)):
-            if (self.documentVectors[i][index]) >= 1:
-                n+=1
-        return n
+    # def n_containing(self, word):
+    #     n = 0
+    #     index = self.vectorKeywordIndex[word]
+    #     for i in range(len(self.documentVectors)):
+    #         if (self.documentVectors[i][index]) >= 1:
+    #             n+=1
+    #     return n
 
 
     def buildIdf(self, documents):
         idf = [0] * len(self.vectorKeywordIndex)
         for word in self.vectorKeywordIndex.keys():
-            temp = (len(documents)) / (1 + self.n_containing(word))
-            if temp > 0:
-                idf[self.vectorKeywordIndex[word]] = math.log(temp,2)
-            else:
-                idf[self.vectorKeywordIndex[word]] = 0
+            n_containing = sum(1 for doc in documents if word in doc.split(' '))
+            idf[self.vectorKeywordIndex[word]] = math.log((len(documents) / (1 + n_containing[word])),2)
         return idf
-
-
+ 
+ 
     def tfidf(self, vector):
         if self.weightType == 'tfidf':
             for i in range(len(vector)):
