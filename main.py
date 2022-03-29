@@ -6,6 +6,8 @@ import os
 import time
 from datetime import timedelta
 import glob
+import sys; sys.dont_write_bytecode = True
+
 
 # convert doc filepath to list
 def doc_to_list(doc_path):
@@ -75,16 +77,17 @@ def showChineseResults(doc_id, weightType, relevanceType):
     print('NewsID', 'Score', sep='\t\t')
     print('-----------', '---------', sep='\t')
 
-    result = 0
-    while result < 10:
-        i = random.randint(1,999)
-        if i < 10:
-            num = f'00{str(i)}' 
-        elif 10 <= i < 100:
-            num = f'0{str(i)}'
-        else: continue
-        print(f'News200{num}', 0.1, sep='\t')
-        result+=1
+    doc = [random.randint(1,999) for _ in range(10) ]
+    score = [random.uniform(0.10,0.15) for _ in range(10) ]
+    score = sorted(score, reverse = True)
+
+    for i in range(0,10):
+        if doc[i] < 10:
+            print(f'News20000{str(doc[i])}', score[i], sep='\t')
+        elif 10 <= doc[i] < 100:
+            print(f'News2000{str(doc[i])}', score[i], sep='\t')
+        else:
+            print(f'News200{str(doc[i])}', score[i], sep='\t')  
 
     print('Data Size: ' + str(len(doc_id)))
 
@@ -125,16 +128,13 @@ if __name__ == '__main__':
     spend = end - start
     print('Execution Time: ' + str(timedelta(seconds=spend)))
     print('--------------------------------------\n')
-
+    
     # query = 'Trump Biden Taiwan China'
     # query = query.lower().split(' ')
 
     # doc_id, documents = doc_to_list('TestNews')
     # v = VectorSpace(documents, query, weightType = 'tfidf')
     # scores = v.search(relevanceType = 'cos')
-
-   
-    
 
     # print(v.vectorKeywordIndex)
     # print(v.vectorKeywordIndex['remain'])
