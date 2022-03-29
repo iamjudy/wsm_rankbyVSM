@@ -17,11 +17,11 @@ Arguments:
 
 There are four combinations can be chose:
 
-#### 1. Term Frequency (TF) Weighting + Cosine Similarity.
+  #### 1. Term Frequency (TF) Weighting + Cosine Similarity.
   ```bash
   python3 main.py -w tf -r cos
   ```
- #### 2. Term Frequency (TF) Weighting + Euclidean Distance.
+  #### 2. Term Frequency (TF) Weighting + Euclidean Distance.
   ```bash
   python3 main.py -w tf -r eu
   ```

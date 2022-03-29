@@ -20,9 +20,9 @@ class Parser:
         string = string.replace(".","")
         string = string.replace(",","")
         string = string.replace("\s+"," ")
-        string = string.replace("\n"," ")
-        string = re.sub(r'[0-9]+', '', string)
-        string = re.sub(r'[^\w\s]', '', string)
+        # string = string.replace("\n"," ")
+        # string = re.sub(r'[0-9]+', '', string)
+        # string = re.sub(r'[^\w\s]', '', string)
         string = string.lower()
         return string
 

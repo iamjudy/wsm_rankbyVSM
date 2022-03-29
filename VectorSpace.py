@@ -111,7 +111,7 @@ class VectorSpace:
         idf = [0] * len(self.vectorKeywordIndex)
         for word in self.vectorKeywordIndex.keys():
             n_containing = sum(1 for doc in documents if word in doc.split(' '))
-            idf[self.vectorKeywordIndex[word]] = math.log((len(documents) / (1 + n_containing[word])),2)
+            idf[self.vectorKeywordIndex[word]] = math.log((len(documents) / (1 + n_containing)),2)
         return idf
  
  
