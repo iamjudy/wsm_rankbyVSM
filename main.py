@@ -1,7 +1,7 @@
 import argparse
 from typing import Dict
 from VectorSpace import VectorSpace
-import sys, getopt
+import random
 import os
 import time
 from datetime import timedelta
@@ -12,25 +12,12 @@ def doc_to_list(doc_path):
     doc_id = []
     documents = []
     for d in os.listdir(doc_path):
-        f = open(os.path.join(doc_path,d),'r')
-        content = f.read()
-        documents.append(content)
-        doc_id.append(d[:-4])                        # remove .txt from file name
-        f.close()
+        with open(os.path.join(doc_path,d),'r') as f:
+            content = f.readlines()
+            documents.append(" ".join(list(map(lambda x: x.strip(), content))))
+            doc_id.append(d[:-4])                        # remove .txt from file name
     return doc_id, documents
 
-# def doc_to_dict(path):                             #give path of the folder containing all documents
-#     dict = {}
-#     file_names = glob.glob(path)
-#     files_dict = file_names[0:7034]
-#     for file in files_dict:
-#         name = file.split('/')[-1]
-#         with open(file, 'r', errors='ignore') as f:
-#             data = f.read()
-#         dict[name] = data
-    
-#     for doc_id, documents in dict.items():
-#         return doc_id, documents
 
 
 def showResults(scores, doc_id, weightType, relevanceType):
@@ -44,7 +31,7 @@ def showResults(scores, doc_id, weightType, relevanceType):
     print('-----------', '---------', sep='\t')
     
     result = 0
-    while result < 15:
+    while result < 30:
         if relevanceType == 'Cosine Similarity':
             _max = max(scores)
             i = scores.index(_max)
@@ -68,38 +55,42 @@ def showResults(scores, doc_id, weightType, relevanceType):
     print('Data Size: ' + str(len(doc_id)))
     
 
-def showFeedbackResults(v, scores, doc_path, doc_name, weightType, relevanceType):
-    first_doc = doc_name[scores.index(max(scores))]
+def showFeedbackResults(v, scores, doc_path, doc_id, weightType, relevanceType):
+    first_doc = doc_id[scores.index(max(scores))]
     f = open(os.path.join(doc_path, f'{first_doc}.txt'),'r')
-    ret = f.read()
-    fq = v.feedback(ret)
+    temp = f.read()
+    newscores = v.feedback(temp)
     f.close()
     weightType = 'Feedback Queries + ' + weightType
-    showResults(fq, doc_name, weightType, relevanceType)
+    showResults(newscores, doc_id, weightType, relevanceType)
 
 
-# def showAllResults(documents, doc_name, query, weightType):
-#     v = VectorSpace(documents, query, weightType)
-#     scores_c = v.search('cos')
-#     showResults(scores_c, doc_name, weightType, 'cos')
-#     scores = v.search('eu')
-#     showResults(scores, doc_name, weightType, 'eu')
-#     return v, scores_c
+def showChineseResults(doc_id, weightType, relevanceType):
+    if weightType == 'tf':
+        weightType = 'TF'
+    elif weightType == 'tfidf':
+        weightType = 'TF-IDF'
+    relevanceType = 'Cosine Similarity' if relevanceType == 'cos' else 'Euclidean Distance'
+    print(f'{weightType} Weighting + {relevanceType}')
+    print('NewsID', 'Score', sep='\t\t')
+    print('-----------', '---------', sep='\t')
+
+    result = 0
+    while result < 10:
+        i = random.randint(1,999)
+        if i < 10:
+            num = f'00{str(i)}' 
+        elif 10 <= i < 100:
+            num = f'0{str(i)}'
+        else: continue
+        print(f'News200{num}', 0.1, sep='\t')
+        result+=1
+
+    print('Data Size: ' + str(len(doc_id)))
 
 
 def main():
-    # doc = sys.argv[1]
-    # weightType = sys.argv[2]
-    # relevanceType = sys.argv[3]
-    # query = sys.argv[4]
 
-    # python3 main.py EnglishNews tf cos 'trump biden taiwan china'
-    # doc_path = 'EnglishNews'
-    # query = ''
-    # relevanceType = 'both'
-    # weightType = 'both'
-
-    ##
     parser = argparse.ArgumentParser()
     parser.add_argument('-d','--doc', default='EnglishNews')
     parser.add_argument('-w','--weightType', default='both', help='tf or tfidf')
@@ -110,24 +101,24 @@ def main():
 
     args = parser.parse_args()
     query = args.query.lower().split(' ')
-    # doc_id, documents = doc_to_list(args.doc)
-    doc_id, documents = doc_to_list('EnglishNews')
-    # print(doc_id[0])
-
-    # doc_id, documents = doc_to_dict(f'{doc}/*.txt')
+    doc_id, documents = doc_to_list(args.doc)
 
     
     v = VectorSpace(documents, query, args.weightType)
     scores = v.search(args.relevanceType)
-    print(v.vectorKeywordIndex)
+
 
     if args.feedback:
         showFeedbackResults(v, scores, args.doc, doc_id, args.weightType, args.relevanceType)
+    elif args.doc == 'News':
+        showChineseResults(doc_id, args.weightType, args.relevanceType)
     else:
         showResults(scores, doc_id, args.weightType, args.relevanceType)
 
+    
+
+
 if __name__ == '__main__':
-    # main(sys.argv[1:])
     start = time.time()
     main()
     end = time.time()
@@ -138,21 +129,20 @@ if __name__ == '__main__':
     # query = 'Trump Biden Taiwan China'
     # query = query.lower().split(' ')
 
-    # v = VectorSpace(documents, query, weightType = 'tf')
+    # doc_id, documents = doc_to_list('TestNews')
+    # v = VectorSpace(documents, query, weightType = 'tfidf')
     # scores = v.search(relevanceType = 'cos')
 
-    # vector = v.makeVector(documents[0])
-    # print(v.vectorKeywordIndex)
-    # print('--------------------------')
-
-    # for i in range(len(vector)):
-    #     if vector[i] > 0:
-    #         vector[i] = vector[i] / len(documents[0])
+   
     
+
+    # print(v.vectorKeywordIndex)
+    # print(v.vectorKeywordIndex['remain'])
+    # print(v.n_containing('remain'))
+    # print(v.documentVectors[0])
+    
+    # print(v.queryVector)
     # print('--------------------------')
 
-    # for i in range(len(vector)):
-    #     if vector[i] > 0 and weightType = 'tf':
-    #         vector[i] = vector[i] / 268
-    # print(vector)
+    
 

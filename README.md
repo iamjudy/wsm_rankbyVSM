@@ -39,5 +39,11 @@ There are four combinations can be chose:
 Relevance Feedback is an IR technique for improving retrieved results. The simplest approach is Pseudo Feedback, the idea of which is to feed the results retrieved by the given query, and then to use the content of the fed results as supplement queries to re-score the documents.
 
 ```bash
-  python3 main.py -w tfidf -r cs -f
+  python3 main.py -w tfidf -r cos -f
   ```
+
+---
+### Bonus : VSM with Different Scheme & Similarity Metrics in Chinese and English
+```bash
+  python3 main.py -d News -w tfidf -r cos -q 烏克蘭大選
+```

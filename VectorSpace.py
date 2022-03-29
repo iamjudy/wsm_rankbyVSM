@@ -3,7 +3,16 @@ from Parser import Parser
 import util
 import math
 import nltk
-# nltk.download('averaged_perceptron_tagger')
+import ssl
+
+# try:
+#     _create_unverified_https_context = ssl._create_unverified_context
+# except AttributeError:
+#     pass
+# else:
+#     ssl._create_default_https_context = _create_unverified_https_context
+
+# nltk.download()
 
 class VectorSpace:
     """ A algebraic model for representing text documents as vectors of identifiers. 
@@ -31,6 +40,7 @@ class VectorSpace:
 
     def __init__(self, documents=[], queryList=[], weightType = ''):
         self.documentVectors=[]
+        self.idf=[]
         self.queryList = queryList
         self.weightType = weightType
         self.parser = Parser()
@@ -51,8 +61,9 @@ class VectorSpace:
         #     f.write(json.dumps(self.vectorKeywordIndex, indent=4, ensure_ascii=False))
         if self.weightType == 'tfidf':
             self.idf = self.buildIdf(documents)
-        self.documentVectors = [self.tfidf(self.makeVector(document)) for document in documents]
-        
+            self.documentVectors = [self.tfidf(self.makeVector(document)) for document in documents]
+        if self.weightType == 'tf':
+            self.documentVectors = [self.makeVector(document) for document in documents]
 
 
     def getVectorKeywordIndex(self, documentList):
@@ -87,23 +98,32 @@ class VectorSpace:
         return vector
     
 
+    def n_containing(self, word):
+        n = 0
+        index = self.vectorKeywordIndex[word]
+        for i in range(len(self.documentVectors)):
+            if (self.documentVectors[i][index]) >= 1:
+                n+=1
+        return n
+
+
     def buildIdf(self, documents):
-        idf_v = [0] * len(self.vectorKeywordIndex)
+        idf = [0] * len(self.vectorKeywordIndex)
         for word in self.vectorKeywordIndex.keys():
-            n_containing = sum(1 for doc in documents if word in doc.split(' '))
-            idf_v[self.vectorKeywordIndex[word]] =(7034 / (1 + n_containing))
-        return idf_v
+            temp = (len(documents)) / (1 + self.n_containing(word))
+            if temp > 0:
+                idf[self.vectorKeywordIndex[word]] = math.log(temp,2)
+            else:
+                idf[self.vectorKeywordIndex[word]] = 0
+        return idf
 
 
     def tfidf(self, vector):
-        for i in range(len(vector)):
-            if vector[i] > 0:
-                if self.weightType == 'tf':
-                    vector[i] = vector[i] / sum(vector)
-
-                if self.weightType == 'tfidf':
+        if self.weightType == 'tfidf':
+            for i in range(len(vector)):
+                if vector[i] > 0:
                     vector[i] = vector[i] * self.idf[i]
-            else: continue
+                else: continue
         return vector
 
 
@@ -140,6 +160,6 @@ class VectorSpace:
         if len(self.queryVector)==0:
             self.queryVector = self.buildQueryVector(self.queryList)
 
-        queryVector = [e+0.5*a for e, a in zip(self.queryVector,feedbackQueryVector)]
+        queryVector = [e + 0.5*a for e, a in zip(self.queryVector,feedbackQueryVector)]
         ratings = [util.cosine(queryVector, documentVector) for documentVector in self.documentVectors]
         return ratings
